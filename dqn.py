@@ -2,6 +2,7 @@
 # TODO: Add a suggested set of hyper parameters for both the MountainCar-v0 and the CartPole-v1 environments
 # TODO: Add a method to generate a GIF of an episode
 # TODO: Suppress TensorFlow warnings
+# TODO: Add a CLI for training and running an agent
 from collections import deque
 from random import sample
 
