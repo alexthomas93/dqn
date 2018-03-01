@@ -1,7 +1,7 @@
 # TODO: Refine the hyper-parameters to work with the MountainCar-v0 environment
 # TODO: Add a suggested set of hyper parameters for both the MountainCar-v0 and the CartPole-v1 environments
-# TODO: Add a requirements file
 # TODO: Add a method to generate a GIF of an episode
+# TODO: Suppress TensorFlow warnings
 from collections import deque
 from random import sample
 
@@ -87,8 +87,3 @@ class Agent:
 
     def load_model(self, model="model.h5"):
         self.model = load_model(model)
-
-
-if __name__ == "__main__":
-    agent = Agent(env="MountainCar-v0", learning_rate=0.00025, batch_size=128, discount_rate=0.99, episodes=500)
-    agent.train_model("MountainCar-v0.h5")
