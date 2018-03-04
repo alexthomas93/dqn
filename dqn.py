@@ -15,8 +15,8 @@ from keras.optimizers import Adam
 
 
 class Agent:
-    def __init__(self, env="CartPole-v1", learning_rate=0.001, batch_size=32, discount_rate=0.95, episodes=1000,
-                 epsilon=1.0, epsilon_decay=0.995, epsilon_min=0.01, memory_len=2000, update_rate=1):
+    def __init__(self, env="CartPole-v1", learning_rate=0.001, batch_size=32, decay_delay=0, discount_rate=0.95,
+                 episodes=1000, epsilon=1.0, epsilon_decay=0.995, epsilon_min=0.01, memory_len=2000, update_rate=1):
         self.env = gym.make(env)
         self.state_size = self.env.observation_space.shape[0]
         self.num_actions = self.env.action_space.n
@@ -24,6 +24,7 @@ class Agent:
         self.model = self.build_model()
         self.target_model = self.build_model()
         self.batch_size = batch_size
+        self.decay_delay = decay_delay
         self.discount_rate = discount_rate
         self.episodes = episodes
         self.epsilon = epsilon
@@ -82,7 +83,8 @@ class Agent:
                 self.replay()
                 if steps % self.update_rate == 0:
                     self.update_target_model()
-                self.decay_epsilon()  # TODO: Should this be inside or outside the inner while loop?
+                if episode > self.decay_delay:
+                    self.decay_epsilon()  # TODO: Should this be inside or outside the inner while loop?
             print("Episode: {}/{}\tScore: {}\tEpsilon: {}".format(episode, self.episodes, score, self.epsilon))
         self.model.save(model)
 
