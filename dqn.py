@@ -1,8 +1,9 @@
 # TODO: Refine the hyper-parameters to work with the MountainCar-v0 environment
 # TODO: Add a suggested set of hyper parameters for both the MountainCar-v0 and the CartPole-v1 environments
 # TODO: Add a method to generate a GIF of an episode
-# TODO: Suppress TensorFlow warnings
+# TODO: Suppress NumPy warnings
 # TODO: Add a CLI for training and running an agent
+import os
 from collections import deque
 from random import sample
 
@@ -12,6 +13,8 @@ from keras import Sequential
 from keras.layers import Dense
 from keras.models import load_model
 from keras.optimizers import Adam
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 class Agent:
