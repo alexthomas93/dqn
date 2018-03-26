@@ -1,5 +1,3 @@
-# TODO: Refine the hyper-parameters to work with the MountainCar-v0 environment
-# TODO: Add a suggested set of hyper parameters for both the MountainCar-v0 and the CartPole-v1 environments
 # TODO: Add a method to generate a GIF of an episode
 # TODO: Suppress NumPy warnings
 # TODO: Add a CLI for training and running an agent
@@ -18,8 +16,8 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 class Agent:
-    def __init__(self, env="CartPole-v1", learning_rate=0.001, batch_size=32, decay_delay=0, discount_rate=0.95,
-                 episodes=1000, epsilon=1.0, epsilon_decay=0.995, epsilon_min=0.01, memory_len=2000, update_rate=1):
+    def __init__(self, env, learning_rate, batch_size, decay_delay, discount_factor, episodes, epsilon, epsilon_decay,
+                 epsilon_min, memory_len, update_rate):
         self.env = gym.make(env)
         self.state_size = self.env.observation_space.shape[0]
         self.num_actions = self.env.action_space.n
@@ -28,7 +26,7 @@ class Agent:
         self.target_model = self.build_model()
         self.batch_size = batch_size
         self.decay_delay = decay_delay
-        self.discount_rate = discount_rate
+        self.discount_factor = discount_factor
         self.episodes = episodes
         self.epsilon = epsilon
         self.epsilon_decay = epsilon_decay
@@ -57,7 +55,7 @@ class Agent:
                 if done:
                     target = reward
                 else:
-                    target = reward + self.discount_rate * np.amax(self.target_model.predict(np.array([next_state])))
+                    target = reward + self.discount_factor * np.amax(self.target_model.predict(np.array([next_state])))
                 x = np.array([state])
                 y = np.array(self.model.predict(np.array([state])))
                 y[0][action] = target
@@ -70,7 +68,7 @@ class Agent:
     def update_target_model(self):
         self.target_model.set_weights(self.model.get_weights())
 
-    def train_model(self, model="model.h5"):
+    def train_model(self, model):
         for episode in range(self.episodes):
             state = self.env.reset()
             done = False
@@ -89,7 +87,7 @@ class Agent:
                 if episode > self.decay_delay:
                     self.decay_epsilon()  # TODO: Should this be inside or outside the inner while loop?
             print("Episode: {}/{}\tScore: {}\tEpsilon: {}".format(episode, self.episodes, score, self.epsilon))
-        self.model.save(model)
+        self.model.save("models/{}.h5".format(model))
 
-    def load_model(self, model="model.h5"):
-        self.model = load_model(model)
+    def load_model(self, model):
+        self.model = load_model("models/{}.h5".format(model))
