@@ -121,4 +121,4 @@ class Agent:
             else:
                 state = next_state
         gif = ImageSequenceClip(frames, fps=30)
-        gif.write_gif("{}.gif".format(filename), program="imageio")
+        gif.write_gif("gifs/{}.gif".format(filename), program="imageio")
