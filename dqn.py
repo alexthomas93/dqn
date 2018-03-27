@@ -1,4 +1,5 @@
 # TODO: Suppress NumPy warnings
+# TODO: Stop MoviePy from printing to the terminal
 import os
 from collections import deque
 from random import sample
