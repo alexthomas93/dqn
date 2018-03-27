@@ -1,6 +1,4 @@
-# TODO: Add a method to generate a GIF of an episode
 # TODO: Suppress NumPy warnings
-# TODO: Add a CLI for training and running an agent
 import os
 from collections import deque
 from random import sample
@@ -11,13 +9,18 @@ from keras import Sequential
 from keras.layers import Dense
 from keras.models import load_model
 from keras.optimizers import Adam
+from moviepy.editor import ImageSequenceClip
+
+import defaults
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 class Agent:
-    def __init__(self, env, learning_rate, batch_size, decay_delay, discount_factor, episodes, epsilon, epsilon_decay,
-                 epsilon_min, memory_len, update_rate):
+    def __init__(self, env=defaults.env, learning_rate=defaults.learning_rate, batch_size=defaults.batch_size,
+                 decay_delay=defaults.decay_delay, discount_factor=defaults.discount_factor, episodes=defaults.episodes,
+                 epsilon=defaults.epsilon, epsilon_decay=defaults.epsilon_decay, epsilon_min=defaults.epsilon_min,
+                 memory_len=defaults.memory_len, update_rate=defaults.update_rate):
         self.env = gym.make(env)
         self.state_size = self.env.observation_space.shape[0]
         self.num_actions = self.env.action_space.n
@@ -68,7 +71,7 @@ class Agent:
     def update_target_model(self):
         self.target_model.set_weights(self.model.get_weights())
 
-    def train_model(self, model):
+    def train_model(self, model=defaults.model):
         for episode in range(self.episodes):
             state = self.env.reset()
             done = False
@@ -89,5 +92,33 @@ class Agent:
             print("Episode: {}/{}\tScore: {}\tEpsilon: {}".format(episode, self.episodes, score, self.epsilon))
         self.model.save("models/{}.h5".format(model))
 
-    def load_model(self, model):
+    def load_model(self, model=defaults.model):
         self.model = load_model("models/{}.h5".format(model))
+
+    def run(self):
+        state = self.env.reset()
+        score = 0
+        for _ in range(200):
+            action = self.act(state, False)
+            next_state, reward, done, _ = self.env.step(action)
+            score += reward
+            if done:
+                break
+            else:
+                state = next_state
+        print("Score: {}".format(score))
+
+    def generate_gif(self, filename=defaults.filename):
+        state = self.env.reset()
+        frames = []
+        for _ in range(200):
+            action = self.act(state, False)
+            frame = self.env.render("rgb_array")
+            next_state, reward, done, _ = self.env.step(action)
+            frames.append(frame)
+            if done:
+                break
+            else:
+                state = next_state
+        gif = ImageSequenceClip(frames, fps=30)
+        gif.write_gif("{}.gif".format(filename), program="imageio")
